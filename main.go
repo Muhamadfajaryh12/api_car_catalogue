@@ -10,7 +10,7 @@ import (
 func main() {
 	r:= gin.Default()
 	model.ConnectDatabase()
-
+	r.Static("uploads","./uploads")
 	r.GET("/api/products",productController.Index)
 	r.GET("/api/product/:id",productController.Show)
 	r.POST("/api/product",productController.Create)
