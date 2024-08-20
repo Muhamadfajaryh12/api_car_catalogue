@@ -41,7 +41,7 @@ func Show(c *gin.Context){
 func Create(c *gin.Context) {
     var product model.Product
 
-    file, header, err := c.Request.FormFile("file")
+    file, header, err := c.Request.FormFile("gambar_product")
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to get file: " + err.Error()})
         return

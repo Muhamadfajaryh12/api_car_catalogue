@@ -3,7 +3,10 @@ package main
 import (
 	categoryController "go/api_catalogue/controller/Category"
 	productController "go/api_catalogue/controller/Product"
+	userController "go/api_catalogue/controller/User"
 	"go/api_catalogue/model"
+
+	"go/api_catalogue/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,18 +14,30 @@ func main() {
 	r:= gin.Default()
 	model.ConnectDatabase()
 	r.Static("uploads","./uploads")
-	r.GET("/api/products",productController.Index)
-	r.GET("/api/product/:id",productController.Show)
-	r.POST("/api/product",productController.Create)
-	r.PUT("/api/product/:id",productController.Update)
-	r.DELETE("/api/product/:id",productController.Delete)
+	protectedRoutes := r.Group("/protected")
+	api := r.Group("/api")
+	{
+		// Product routes
+		api.GET("/products", productController.Index)
+		api.GET("/product/:id", productController.Show)
+		api.POST("/product", productController.Create)
+		api.PUT("/product/:id", productController.Update)
+		api.DELETE("/product/:id", productController.Delete)
 
-	
-	r.GET("/api/categorys",categoryController.Index)
-	r.GET("/api/category/:id",categoryController.Show)
-	r.POST("/api/category",categoryController.Create)
-	r.PUT("/api/category/:id",categoryController.Update)
-	r.DELETE("/api/category/:id",categoryController.Delete)
+		// Category routes
+		api.GET("/categories", categoryController.Index)
+		api.GET("/category/:id", categoryController.Show)
+		protectedRoutes.Use(middleware.AuthenticationMiddleware())
+		{
+					protectedRoutes.POST("/category", categoryController.Create)
+					protectedRoutes.PUT("/category/:id", categoryController.Update)
+					protectedRoutes.DELETE("/category/:id", categoryController.Delete)
 
+		}
+
+		// User routes
+		api.POST("/user/register", userController.Register)
+		api.POST("/user/login", userController.Login)
+	}
 	r.Run()
 }
