@@ -8,10 +8,18 @@ import (
 
 	"go/api_catalogue/middleware"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 func main() {
 	r:= gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	model.ConnectDatabase()
 	r.Static("uploads","./uploads")
 	protectedRoutes := r.Group("/protected")
@@ -27,6 +35,8 @@ func main() {
 		// Category routes
 		api.GET("/categories", categoryController.Index)
 		api.GET("/category/:id", categoryController.Show)
+		api.POST("/user/register", userController.Register)
+		api.POST("/user/login", userController.Login)
 		protectedRoutes.Use(middleware.AuthenticationMiddleware())
 		{
 					protectedRoutes.POST("/category", categoryController.Create)
@@ -36,8 +46,6 @@ func main() {
 		}
 
 		// User routes
-		api.POST("/user/register", userController.Register)
-		api.POST("/user/login", userController.Login)
 	}
 	r.Run()
 }

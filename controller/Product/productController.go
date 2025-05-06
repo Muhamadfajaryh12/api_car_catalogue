@@ -33,6 +33,7 @@ func Show(c *gin.Context){
 			c.AbortWithStatusJSON(http.StatusInternalServerError,gin.H{"message":err.Error()})
 		}
 	}
+	model.DB.Preload("Category").Find(&product)
 
 	c.JSON(http.StatusOK,gin.H{"product":product})
 }
@@ -41,7 +42,7 @@ func Show(c *gin.Context){
 func Create(c *gin.Context) {
     var product model.Product
 
-    file, header, err := c.Request.FormFile("gambar_product")
+    file, header, err := c.Request.FormFile("files")
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to get file: " + err.Error()})
         return
